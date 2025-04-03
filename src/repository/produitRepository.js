@@ -1,21 +1,8 @@
-const mysql = require("mysql2/promise");
-require("dotenv").config();
-
-const db = mysql.createPool({
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_NAME,
-});
+const db = require("../db");
 
 const obtenirTousProduits = async () => {
 	const [rows] = await db.query("SELECT * FROM Produits");
 	return rows;
-};
-
-const obtenirProduitParId = async (id) => {
-	const [rows] = await db.query("SELECT * FROM Produits WHERE id = ?", [id]);
-	return rows[0];
 };
 
 const ajouterProduit = async (nom, description, prix, photo) => {
@@ -27,6 +14,12 @@ const ajouterProduit = async (nom, description, prix, photo) => {
 };
 
 const modifierProduit = async (id, nom, description, prix, photo) => {
+	console.log(`Modification Produit ID=${id} avec :`, {
+		nom,
+		description,
+		prix,
+		photo,
+	});
 	await db.query(
 		"UPDATE Produits SET nom = ?, description = ?, prix = ?, photo = ? WHERE id = ?",
 		[nom, description, prix, photo, id],
@@ -35,13 +28,13 @@ const modifierProduit = async (id, nom, description, prix, photo) => {
 };
 
 const supprimerProduit = async (id) => {
+	console.log(`Suppression Produit ID=${id}`);
 	await db.query("DELETE FROM Produits WHERE id = ?", [id]);
-	return { id };
+	console.log(`Produit ID=${id} supprimé avec succès`);
 };
 
 module.exports = {
 	obtenirTousProduits,
-	obtenirProduitParId,
 	ajouterProduit,
 	modifierProduit,
 	supprimerProduit,
