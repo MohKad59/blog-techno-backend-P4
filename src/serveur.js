@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("node:path");
 const multer = require("multer");
 const fs = require('node:fs'); // Importer le module File System
+const { validateBody, schemas } = require("./middlewares/validationMiddleware");
 const produitActions = require("./actions/produitActions");
 const avisActions = require("./actions/avisActions");
 const comparatifActions = require("./actions/comparatifActions");
@@ -50,31 +51,23 @@ app.get("/produits", async (req, res) => {
 	}
 });
 
-app.post("/produits", upload.single("photo"), async (req, res) => {
-	console.log("POST /produits appelé avec body:", req.body);
-	console.log("Fichier reçu (peut être undefined):", req.file);
+app.post("/produits", upload.single("photo"), validateBody(schemas.produitAjout), async (req, res) => {
+	console.log("POST /produits validé, body:", req.body);
+	console.log("Fichier reçu:", req.file);
 	try {
 		const { nom, description, prix } = req.body;
-		let photoValue; // Pas de type ici (JS)
+		let photoValue;
 
 		if (req.file) {
-			photoValue = req.file.filename; // Utiliser le nom du fichier uploadé
-			console.log("Photo depuis fichier:", photoValue);
-		} else if (
-			req.body.photo &&
-			typeof req.body.photo === "string" &&
-			req.body.photo.startsWith("http")
-		) {
-			photoValue = req.body.photo; // Utiliser l'URL fournie dans le corps JSON
-			console.log("Photo depuis URL:", photoValue);
+			photoValue = req.file.filename;
+		} else if (req.body.photo && typeof req.body.photo === 'string' && req.body.photo.startsWith('http')) {
+			photoValue = req.body.photo;
 		} else {
-			// Ni fichier, ni URL valide fournie
-			return res
-				.status(400)
-				.json({
-					message:
-						"Une image (fichier ou URL valide commençant par http) est requise pour ajouter un produit.",
-				});
+			// Normalement, cette condition ne devrait plus être atteinte si l'upload est requis
+			// Mais on garde une sécurité. Ou on ajuste le schéma Joi si l'URL est obligatoire quand pas de fichier.
+			// Si l'un des deux (fichier ou URL) est requis, la logique de validation devrait être plus complexe
+			// ou faite ici après le middleware Joi.
+			return res.status(400).json({ message: "Une image (fichier ou URL valide) est requise." });
 		}
 
 		const nouveauProduit = await produitActions.ajouterProduit(
