@@ -20,11 +20,25 @@ const modifierProduit = async (id, nom, description, prix, photo) => {
 		prix,
 		photo,
 	});
-	await db.query(
-		"UPDATE Produits SET nom = ?, description = ?, prix = ?, photo = ? WHERE id = ?",
-		[nom, description, prix, photo, id],
-	);
-	return { id, nom, description, prix, photo };
+
+	let query = "UPDATE Produits SET nom = ?, description = ?, prix = ?";
+	const params = [nom, description, prix];
+
+	if (photo !== undefined) {
+		query += ", photo = ?";
+		params.push(photo);
+	}
+
+	query += " WHERE id = ?";
+	params.push(id);
+
+	console.log("Requête UPDATE :", query);
+	console.log("Paramètres UPDATE :", params);
+
+	await db.query(query, params);
+
+	const [updatedRows] = await db.query("SELECT * FROM Produits WHERE id = ?", [id]);
+	return updatedRows[0];
 };
 
 const supprimerProduit = async (id) => {

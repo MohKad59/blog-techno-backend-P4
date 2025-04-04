@@ -9,15 +9,40 @@ const db = mysql.createPool({
 });
 
 const obtenirTousComparatifs = async () => {
-	const [rows] = await db.query(
-		"SELECT c.id, c.titre, c.contenu, p1.nom AS produit1_nom, p2.nom AS produit2_nom, c.produit1_id, c.produit2_id FROM Comparatifs c JOIN Produits p1 ON c.produit1_id = p1.id JOIN Produits p2 ON c.produit2_id = p2.id",
-	);
+	const [rows] = await db.query(`
+    SELECT 
+      c.id, 
+      c.titre, 
+      c.contenu, 
+      p1.nom AS produit1_nom, 
+      p1.photo AS produit1_photo,
+      p2.nom AS produit2_nom, 
+      p2.photo AS produit2_photo,
+      c.produit1_id, 
+      c.produit2_id 
+    FROM Comparatifs c 
+    JOIN Produits p1 ON c.produit1_id = p1.id 
+    JOIN Produits p2 ON c.produit2_id = p2.id
+  `);
 	return rows;
 };
 
 const obtenirComparatifParId = async (id) => {
 	const [rows] = await db.query(
-		"SELECT c.id, c.titre, c.contenu, p1.nom AS produit1_nom, p2.nom AS produit2_nom, c.produit1_id, c.produit2_id FROM Comparatifs c JOIN Produits p1 ON c.produit1_id = p1.id JOIN Produits p2 ON c.produit2_id = p2.id WHERE c.id = ?",
+		`SELECT 
+      c.id, 
+      c.titre, 
+      c.contenu, 
+      p1.nom AS produit1_nom, 
+      p1.photo AS produit1_photo,
+      p2.nom AS produit2_nom, 
+      p2.photo AS produit2_photo,
+      c.produit1_id, 
+      c.produit2_id 
+    FROM Comparatifs c 
+    JOIN Produits p1 ON c.produit1_id = p1.id 
+    JOIN Produits p2 ON c.produit2_id = p2.id 
+    WHERE c.id = ?`,
 		[id],
 	);
 	return rows[0];

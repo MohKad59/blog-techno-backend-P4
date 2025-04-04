@@ -39,7 +39,7 @@ const supprimerProduit = async (id) => {
 		console.log(`Produit ID=${id} supprimé avec succès`);
 	} catch (error) {
 		console.error("Erreur dans supprimerProduit :", error);
-		throw error; // Relance l’erreur pour que la route la capture
+		throw error; // Relance l'erreur pour que la route la capture
 	}
 };
 

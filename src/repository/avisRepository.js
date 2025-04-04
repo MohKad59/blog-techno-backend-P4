@@ -9,19 +9,42 @@ const db = mysql.createPool({
 });
 
 const obtenirTousAvis = async () => {
-	const [rows] = await db.query("SELECT * FROM Avis");
+	const [rows] = await db.query(`
+    SELECT
+      Avis.*,
+      Produits.nom AS produit_nom,
+      Produits.photo AS produit_photo 
+    FROM Avis
+    JOIN Produits ON Avis.produit_id = Produits.id
+  `);
 	return rows;
 };
 
 const obtenirAvisParId = async (id) => {
-	const [rows] = await db.query("SELECT * FROM Avis WHERE id = ?", [id]);
+	const [rows] = await db.query(
+		`SELECT 
+      Avis.*, 
+      Produits.nom AS produit_nom, 
+      Produits.photo AS produit_photo 
+     FROM Avis 
+     JOIN Produits ON Avis.produit_id = Produits.id 
+     WHERE Avis.id = ?`,
+		[id],
+	);
 	return rows[0];
 };
 
 const obtenirAvisParProduit = async (produitId) => {
-	const [rows] = await db.query("SELECT * FROM Avis WHERE produit_id = ?", [
-		produitId,
-	]);
+	const [rows] = await db.query(
+		`SELECT 
+      Avis.*, 
+      Produits.nom AS produit_nom, 
+      Produits.photo AS produit_photo 
+     FROM Avis 
+     JOIN Produits ON Avis.produit_id = Produits.id 
+     WHERE Avis.produit_id = ?`,
+		[produitId],
+	);
 	return rows;
 };
 
